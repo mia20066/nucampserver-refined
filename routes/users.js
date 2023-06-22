@@ -1,13 +1,15 @@
-const express = require('express');
+var express = require('express');
 const User = require('../models/user')
-const router = express.Router();
+
 const passport = require('passport');
 const authenticate = require('../authenticate');
+const cors = require('./cors');
 
+var router = express.Router();
 
 
 /* GET users listing. */
-router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, function (req, res, next) {
+router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, function (req, res, next) {
 User.find()
 .then((users) => {
   res.statusCode = 200;
@@ -16,7 +18,7 @@ User.find()
 })
 });
 
-router.post('/signup', (req, res) => {
+router.post('/signup', cors.corsWithOptions, (req, res) => {
   
   User.register(
     new User({ username: req.body.username }),
@@ -54,7 +56,7 @@ router.post('/signup', (req, res) => {
 );
    });
  
-router.post('/login', passport.authenticate('local'), (req, res) => {
+router.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
   const token = authenticate.getToken({_id: req.user._id});//we pass the token we exported from authenticate a payload we just include in the payload the user id from the request object
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
@@ -67,7 +69,7 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
 
 
 //deleteing a session
-router.get('/logout', (req, res, next) => {
+router.get('/logout', cors.corsWithOptions, (req, res, next) => {
   if (req.session) { 
     req.session.destroy(); 
     res.clearCookie('session-id'); 
