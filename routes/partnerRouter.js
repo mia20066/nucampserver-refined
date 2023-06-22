@@ -14,7 +14,7 @@ partnerRouter.route('/')
         .catch(err => next(err)); // what will this do is passing the error to the overall error handler for this express application
 
 })
-.post(authenticate.verifyUser, (req, res, next) => {
+.post(authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => {
     Partner.create(req.body)
         .then(partner => {
             console.log('Partner Created ', partner);
@@ -26,11 +26,11 @@ partnerRouter.route('/')
         .catch(err => next(err));
 
 })
-.put(authenticate.verifyUser, (req, res) => {
+.put(authenticate.verifyUser,(req, res) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /partners');
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => {
     Partner.deleteMany()
         .then(response => {
             res.statusCode = 200;
@@ -59,11 +59,11 @@ partnerRouter.route('/:partnerId')
             .catch(err => next(err)); // what will this do is passing the error to the overall error handler for this express application
 
     })
-    .post(authenticate.verifyUser, (req, res) => {
+    .post(authenticate.verifyUser,(req, res) => {
         res.statusCode = 403
         res.end(`POST operation not supported on /partners/ ${req.params.partnerId} to you`);
     })
-    .put(authenticate.verifyUser, (req, res) => {
+    .put(authenticate.verifyUser, authenticate.verifyAdmin,(req, res) => {
         Partner.findByIdAndUpdate(req.params.partnerId, {
             $set: req.body
         }, { new: true }) //we set new to true so we get information back about the updated document as the result from this method
@@ -74,7 +74,7 @@ partnerRouter.route('/:partnerId')
             })
             .catch(err => next(err));
     })
-    .delete(authenticate.verifyUser, (req, res, next) => {
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => {
         Partner.findByIdAndDelete(req.params.partnerId)
             .then(response => {
                 res.statusCode = 200;

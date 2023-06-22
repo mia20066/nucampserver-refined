@@ -8,12 +8,16 @@ var app = require('../app');
 var debug = require('debug')('nucampserver-refined:server');
 var http = require('http');
 
+const https = require('https');
+const fs = require('fs');
+
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
+app.set('secPort', port+443); //we are storing a value that we can get later
 
 /**
  * Create HTTP server.
@@ -28,6 +32,26 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+//create https server
+//__dirname points to the current directory which is bin directory
+const options = {
+  key: fs.readFileSync(__dirname+'/server.key'),  //this reads in the content of key file of the server.key file into the expresss applications running memory
+  cert: fs.readFileSync(__dirname+'/server.cert') //contains the public key 
+};
+
+const secureServer = https.createServer(options, app);
+
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+secureServer.listen(app.get('secPort'), () => {
+  console.log('Server listening on port', app.get('secPort'));
+});
+secureServer.on('error', onError);
+secureServer.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
