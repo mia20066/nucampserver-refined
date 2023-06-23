@@ -15,6 +15,7 @@ const uploadRouter = require('./routes/uploadRouter');
 const mongoose = require('mongoose');
 
 
+
 const url = config.mongoUrl;
 const connect = mongoose.connect(url, {
   useCreateIndex: true,
@@ -49,6 +50,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(passport.initialize());
+
+
+
+
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
